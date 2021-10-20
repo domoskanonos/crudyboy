@@ -1,3 +1,1 @@
-//import "./controller";
-import "./repository";
-
+import "./controller";

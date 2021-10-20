@@ -1,45 +1,30 @@
-import * as mongoDB from "mongodb";
+import { MongoClient, Db } from "mongodb";
 import * as dotenv from "dotenv";
 
-export const collections: { games?: mongoDB.Collection } = {};
+//dotenv.config();
 
-export async function connectToDatabase() {
-  console.log("connect to db.");
-  dotenv.config();
+export class CrudyboyRepository {
+  private client: MongoClient | null | undefined;
+  private db: Db | null | undefined;
 
-  if (process.env.DB_CONN_STRING) {
-    const client: mongoDB.MongoClient = new mongoDB.MongoClient(
-      process.env.DB_CONN_STRING
-    );
+  constructor() {
+    if (process.env.DB_CONN_STRING) {
+      this.client = new MongoClient(process.env.DB_CONN_STRING);
+      this.connectToDatabase().then(() => {
+        console.log(`successfully connected to database: ${db.databaseName}`);
+        this.db = this.client ? this.client.db(process.env.DB_NAME) : null;
+      });
+    } else {
+      console.error("env: db connection string not set.");
+    }
+  }
 
-    await client.connect();
+  async getCollections() {
+    return this.db ? await this.db.collections() : null;
+  }
 
-
-    console.log("client connected.");
-
-    const db: mongoDB.Db = client.db(process.env.DB_NAME);
-    const xxx = db.listCollections();
-
-
-      
-       
-       const collections = await db.collections();
-       collections.forEach (c=>console.log(c.collectionName));
-
-
-
-
-   
-
-
-    console.log(`Successfully connected to database: ${db.databaseName}`);
-
-    //const gamesCollection: mongoDB.Collection = db.collection(process.env.GAMES_COLLECTION_NAME);
-
-    //collections.games = gamesCollection;
-
-    //console.log(`Successfully connected to database: ${db.databaseName} and collection: ${gamesCollection.collectionName}`);
+  async connectToDatabase() {
+    console.log("connect to db...");
+    return this.client != null ? await this.client.connect() : null;
   }
 }
-
-connectToDatabase();

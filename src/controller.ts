@@ -1,13 +1,27 @@
-import express from 'express';
-const app = express();
-const port = 8080; // default port to listen
+import express, { Router } from 'express';
+import { CrudyboyRepository } from './repository';
 
-// define a route handler for the default home page
-app.get("/", (req: any, res: any): any => {
-  res.send("Hello world! $s",req);
-});
+//const app = express();
+//const port = 8080; // default port to listen
 
-// start the Express server
-app.listen(port, () => {
-  console.log(`server started at http://localhost:${port}`);
-});
+export class CrudyboyRouter {
+  private router : Router;
+  private repository: CrudyboyRepository;
+
+  constructor(){
+    this.router = express.Router();
+    this.repository = new CrudyboyRepository();
+  }
+
+  public async createEndpoints(): Promise<void>{
+    this.repository.connectToDatabase();
+    const collections = this.repository.getCollections();
+    return Promise.resolve();
+  }
+
+
+}
+
+
+const crudyRouter : CrudyboyRouter = new CrudyboyRouter();
+crudyRouter.createEndpoints();
