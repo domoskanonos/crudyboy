@@ -20,6 +20,8 @@ const app = express();
 app.use(express.json());
 
 function createEndpoints() {
+
+  //https://swagger.io/specification/#infoObject
   const swaggerOptions = {
     swaggerDefinition: {
       info: {
@@ -53,9 +55,9 @@ function createEndpoints() {
 
         //get
         swaggerOptions.swaggerDefinition.paths[path]["get"] = {
-            description: `return all ${collectionName}'s`,
-            operationId: "findAll${collectionName}",
-            produces: ["application/json"],
+          description: `return all ${collectionName}'s`,
+          operationId: "findAll${collectionName}",
+          produces: ["application/json"],
         };
         app.get(path, async (req, res) => {
           console.log(
@@ -68,6 +70,11 @@ function createEndpoints() {
         });
 
         //post
+        swaggerOptions.swaggerDefinition.paths[path]["post"] = {
+          description: `add ${collectionName}`,
+          operationId: "add",
+          produces: ["application/json"],
+        };
         app.post(path, async (req, res) => {
           console.log(
             "insert item for collection %s, json: %s",
@@ -84,7 +91,15 @@ function createEndpoints() {
             : res.status(500).send(`failed to create a new ${path}.`);
         });
 
+        const pathWithId = path.concat("/{id}");
+        swaggerOptions.swaggerDefinition.paths[pathWithId] = {};
+
         //put
+        swaggerOptions.swaggerDefinition.paths[pathWithId]["put"] = {
+          description: `update ${collectionName} by id`,
+          operationId: "updateById",
+          produces: ["application/json"],
+        };
         app.put(path.concat("/:id"), async (req, res) => {
           const id = req?.params?.id;
           const item = req.body;
@@ -103,6 +118,26 @@ function createEndpoints() {
                 .send(`${collectionName} with id: ${id} not updated`);
         });
 
+        //delete
+        swaggerOptions.swaggerDefinition.paths[pathWithId]["delete"] = {
+          description: `remove ${collectionName} by id`,
+          operationId: "removeById",
+          produces: ["application/json"],
+          parameters: [
+            {
+              name: "id",
+              in: "path",
+              description: `id of ${collectionName} to delete`,
+              required: true,
+              schema: {
+                type: "string",
+                
+              },
+              style: "simple"
+            }
+          ]
+
+        };
         app.delete(path.concat("/:id"), async (req, res) => {
           const id = req?.params?.id;
 
@@ -123,7 +158,6 @@ function createEndpoints() {
               .send(`${collectionName} with id ${id} does not exist`);
           }
         });
-
       });
 
       const swaggerDocs = swaggerJsDoc(swaggerOptions);
