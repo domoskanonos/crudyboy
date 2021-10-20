@@ -30,8 +30,7 @@ function createEndpoints() {
         description: `API Information for project ${databaseName}`,
         contact: {
           name: "Dominik Bruhn",
-        },
-        servers: [`http://${host}:${port}`],
+        }
       },
       paths: <any>{},
     },
