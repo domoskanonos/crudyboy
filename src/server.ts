@@ -164,7 +164,7 @@ function createEndpoints() {
       const swaggerDocs = swaggerJsDoc(swaggerOptions);
       app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-      app.listen(port, host, () => {
+      app.listen(port, () => {
         console.log(`server started at ${host}:${port}`);
       });
     })
