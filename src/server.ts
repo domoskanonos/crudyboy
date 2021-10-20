@@ -5,7 +5,6 @@ import swaggerUi from "swagger-ui-express";
 import swaggerJsDoc from "swagger-jsdoc";
 
 dotenv.config();
-const host: string = process.env.HOST ? process.env.HOST : "localhost";
 const port: number = process.env.PORT ? Number(process.env.PORT) : 8080;
 const databaseConnectionString: string = process.env.CONNECTION_STRING
   ? process.env.CONNECTION_STRING
@@ -165,7 +164,7 @@ function createEndpoints() {
       app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
       app.listen(port, () => {
-        console.log(`server started at ${host}:${port}`);
+        console.log(`server started on port ${port}`);
       });
     })
     .catch((error: string) => {
