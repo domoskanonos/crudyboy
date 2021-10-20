@@ -14,7 +14,6 @@ export class CrudyboyRouter {
   }
 
   public async createEndpoints(): Promise<void>{
-    this.repository.connectToDatabase();
     const collections = this.repository.getCollections();
     return Promise.resolve();
   }
