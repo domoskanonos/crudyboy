@@ -1,9 +1,13 @@
-FROM ubuntu:latest
-RUN apt -y update && \
-    apt -y upgrade && \
-    apt-get install -y nodejs && \
-    apt-get install -y nodejs-npm && \
-    mkdir /app
-COPY lib/ /app/lib/
-WORKDIR /app/
-CMD nodejs lib/server.js
+FROM alpine:3.13.3
+RUN apk update && \
+    apk upgrade && \
+    apk add git && \
+    apk add nodejs && \
+    apk add nodejs-npm && \
+    mkdir /app && \
+    cd /app && \
+    git clone https://github.com/domoskanonos/crudyboy.git && \
+    cd crudyboy && \
+    npm i
+WORKDIR /app/crudyboy
+CMD npm run start

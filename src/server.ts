@@ -20,6 +20,7 @@ const app = express();
 app.use(express.json());
 
 function createEndpoints() {
+  console.log("create endpoints");
 
   //https://swagger.io/specification/#infoObject
   const swaggerOptions = {
@@ -50,6 +51,8 @@ function createEndpoints() {
         const collectionName: string = collection.collectionName;
         console.log("collection name: %s", collectionName);
         const path = "/".concat(collectionName);
+
+        console.log("create endpoint: %s", path);
 
         swaggerOptions.swaggerDefinition.paths[path] = {};
 
@@ -131,12 +134,10 @@ function createEndpoints() {
               required: true,
               schema: {
                 type: "string",
-                
               },
-              style: "simple"
-            }
-          ]
-
+              style: "simple",
+            },
+          ],
         };
         app.delete(path.concat("/:id"), async (req, res) => {
           const id = req?.params?.id;
