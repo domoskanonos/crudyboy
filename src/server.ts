@@ -4,6 +4,20 @@ import { Collection, Db, MongoClient, ObjectId } from "mongodb";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsDoc from "swagger-jsdoc";
 
+const getCircularReplacer = () => {
+  const seen = new WeakSet();
+  return (key: string, value: string) => {
+    console.log(key);
+    if (typeof value === "object" && value !== null) {
+      if (seen.has(value)) {
+        return;
+      }
+      seen.add(value);
+    }
+    return value;
+  };
+};
+
 dotenv.config();
 const port: number = process.env.PORT ? Number(process.env.PORT) : 8080;
 const databaseConnectionString: string = process.env.CONNECTION_STRING
@@ -18,6 +32,14 @@ const client: MongoClient = new MongoClient(databaseConnectionString);
 const app = express();
 app.use(express.json());
 
+const DisableAuthorizePlugin = function () {
+  return {
+    wrapComponents: {
+      authorizeBtn: () => () => null,
+    },
+  };
+};
+
 function createEndpoints() {
   console.log("create endpoints");
 
@@ -26,15 +48,17 @@ function createEndpoints() {
     swaggerDefinition: {
       info: {
         version: "1.0.0",
-        title: `Project ${databaseName}`,
-        description: `API Information for project ${databaseName}`,
+        url: "",
+        title: `project ${databaseName}`,
+        description: `api information for project ${databaseName}`,
         contact: {
           name: "Dominik Bruhn",
-        }
+        },
       },
       paths: <any>{},
     },
     apis: [],
+    security: [],
   };
 
   client
@@ -48,15 +72,28 @@ function createEndpoints() {
       collections.forEach((collection: Collection) => {
         const collectionName: string = collection.collectionName;
         console.log("collection name: %s", collectionName);
-        const path = "/".concat(collectionName);
 
+        const path = "/".concat(collectionName);
         console.log("create endpoint: %s", path);
 
         swaggerOptions.swaggerDefinition.paths[path] = {};
 
         //get
         swaggerOptions.swaggerDefinition.paths[path]["get"] = {
-          description: `return all ${collectionName}'s`,
+          description: `returns all ${collectionName}'s`,
+          tags: [`${collectionName}`],
+          responses: {
+            200: {
+              description: `a list of ${collectionName}`,
+              content: {
+                "application/json": {
+                  schema: {
+                    type: "array",
+                  },
+                },
+              },
+            },
+          },
           operationId: "findAll${collectionName}",
           produces: ["application/json"],
         };
@@ -73,8 +110,26 @@ function createEndpoints() {
         //post
         swaggerOptions.swaggerDefinition.paths[path]["post"] = {
           description: `add ${collectionName}`,
+          tags: [`${collectionName}`],
           operationId: "add",
           produces: ["application/json"],
+          consumes: ["application/json"],
+          parameters: [
+            {
+              name: `${collectionName}`,
+              in: "body",
+              description: `object of ${collectionName} as json`,
+              required: true,
+              schema: {
+                type: "object",
+                required: true,
+                properties: {
+                  _id: { type: "string", format: "uuid", default: null },
+                },
+              },
+              style: "simple",
+            },
+          ],
         };
         app.post(path, async (req, res) => {
           console.log(
@@ -98,8 +153,47 @@ function createEndpoints() {
         //put
         swaggerOptions.swaggerDefinition.paths[pathWithId]["put"] = {
           description: `update ${collectionName} by id`,
+          tags: [`${collectionName}`],
           operationId: "updateById",
+          responses: {
+            200: {
+              description: `a list of ${collectionName}`,
+              content: {
+                "application/text": {
+                  schema: {
+                    type: "string",
+                  },
+                },
+              },
+            },
+          },
           produces: ["application/json"],
+          consumes: ["application/json"],
+          parameters: [
+            {
+              name: "object",
+              in: "body",
+              description: `object of ${collectionName} as json`,
+              required: true,
+              schema: {
+                type: "object",
+                required: true,
+                properties: {
+                  _id: { type: "string", format: "uuid", default: null },
+                },
+              },
+              style: "simple",
+            },{
+              name: "id",
+              in: "path",
+              description: `id of ${collectionName} to delete`,
+              required: true,
+              schema: {
+                type: "string",
+              },
+              style: "simple",
+            },
+          ],
         };
         app.put(path.concat("/:id"), async (req, res) => {
           const id = req?.params?.id;
@@ -122,8 +216,20 @@ function createEndpoints() {
         //delete
         swaggerOptions.swaggerDefinition.paths[pathWithId]["delete"] = {
           description: `remove ${collectionName} by id`,
+          tags: [`${collectionName}`],
+          responses: {
+            202: {
+              description: `a list of ${collectionName}`,
+              content: {
+                "application/text": {
+                  schema: {
+                    type: "string",
+                  },
+                },
+              },
+            },
+          },
           operationId: "removeById",
-          produces: ["application/json"],
           parameters: [
             {
               name: "id",
