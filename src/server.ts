@@ -137,6 +137,13 @@ function createEndpoints() {
             path,
             req.body
           );
+
+
+          
+          if (typeof req.body === 'string' || req.body instanceof String){
+            console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+          }
+
           const result: any = await collection.insertOne(req.body);
           result
             ? res
