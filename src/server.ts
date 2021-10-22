@@ -2,7 +2,6 @@ import * as dotenv from "dotenv";
 import express from "express";
 import { Collection, Db, MongoClient, ObjectId } from "mongodb";
 import swaggerUi from "swagger-ui-express";
-import swaggerJsDoc from "swagger-jsdoc";
 
 dotenv.config();
 const version: string | undefined = process.env.npm_package_version;
@@ -19,26 +18,12 @@ const client: MongoClient = new MongoClient(databaseConnectionString);
 const app = express();
 app.use(express.json());
 
+const paths : any = {};
+
 function createEndpoints() {
   console.log("create endpoints");
 
-  //https://swagger.io/specification/#infoObject
-  const swaggerOptions = {
-    swaggerDefinition: {
-      info: {
-        version: `${version}`,
-        url: "",
-        title: `project ${databaseName}`,
-        description: `api information for project ${databaseName}`,
-        contact: {
-          name: "Dominik Bruhn",
-        },
-      },
-      paths: <any>{},
-    },
-    apis: [],
-    security: {},
-  };
+
 
   client
     .connect()
@@ -55,10 +40,12 @@ function createEndpoints() {
         const path = "/".concat(collectionName);
         console.log("create endpoint: %s", path);
 
-        swaggerOptions.swaggerDefinition.paths[path] = {};
+
+
+        paths[path] = {};
 
         //get
-        swaggerOptions.swaggerDefinition.paths[path]["get"] = {
+        paths[path]["get"] = {
           description: `get all ${collectionName} objects avaliable`,
           tags: [`${collectionName}`],
           responses: {
@@ -87,7 +74,7 @@ function createEndpoints() {
         });
 
         //post
-        swaggerOptions.swaggerDefinition.paths[path]["post"] = {
+        paths[path]["post"] = {
           description: `one or more elements of type ${collectionName} can be saved with this endpoint. f.e. insert one object: {}, insert multiple: [{},{},{},...] .`,
           tags: [`${collectionName}`],
           operationId: "add",
@@ -128,10 +115,10 @@ function createEndpoints() {
         });
 
         const pathWithId = path.concat("/{id}");
-        swaggerOptions.swaggerDefinition.paths[pathWithId] = {};
+        paths[pathWithId] = {};
 
         //put
-        swaggerOptions.swaggerDefinition.paths[pathWithId]["put"] = {
+        paths[pathWithId]["put"] = {
           description: `update ${collectionName} by id`,
           tags: [`${collectionName}`],
           operationId: "updateById",
@@ -193,7 +180,7 @@ function createEndpoints() {
         });
 
         //delete
-        swaggerOptions.swaggerDefinition.paths[pathWithId]["delete"] = {
+        paths[pathWithId]["delete"] = {
           description: `remove ${collectionName} by id`,
           tags: [`${collectionName}`],
           responses: {
@@ -244,7 +231,6 @@ function createEndpoints() {
         });
       });
 
-      const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
       const CUSTOM_CSS: string = process.env.CUSTOM_CSS
         ? process.env.CUSTOM_CSS
@@ -315,27 +301,11 @@ function createEndpoints() {
           "produces": [
             "application/json"
           ],
-          "paths": {
-            "/pets": {
-              "get": {
-                "description": "Returns all pets from the system that the user has access to",
-                "produces": [
-                  "application/json"
-                ],
-                "responses": {
-                  "200": {
-                    "description": "A list of pets.",
-                    "schema": {
-                      "type": "array",
-                      "items": {
-                        "$ref": "#/definitions/Pet"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
+          "paths": paths
+          
+          
+          
+          ,
           "definitions": {
             "Pet": {
               "type": "object",
