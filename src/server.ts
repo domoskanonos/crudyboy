@@ -18,12 +18,10 @@ const client: MongoClient = new MongoClient(databaseConnectionString);
 const app = express();
 app.use(express.json());
 
-const paths : any = {};
+const openApiDocPath: any = {};
 
 function createEndpoints() {
   console.log("create endpoints");
-
-
 
   client
     .connect()
@@ -40,12 +38,10 @@ function createEndpoints() {
         const path = "/".concat(collectionName);
         console.log("create endpoint: %s", path);
 
-
-
-        paths[path] = {};
+        openApiDocPath[path] = {};
 
         //get
-        paths[path]["get"] = {
+        openApiDocPath[path]["get"] = {
           description: `get all ${collectionName} objects avaliable`,
           tags: [`${collectionName}`],
           responses: {
@@ -74,7 +70,7 @@ function createEndpoints() {
         });
 
         //post
-        paths[path]["post"] = {
+        openApiDocPath[path]["post"] = {
           description: `one or more elements of type ${collectionName} can be saved with this endpoint. f.e. insert one object: {}, insert multiple: [{},{},{},...] .`,
           tags: [`${collectionName}`],
           operationId: "add",
@@ -115,10 +111,10 @@ function createEndpoints() {
         });
 
         const pathWithId = path.concat("/{id}");
-        paths[pathWithId] = {};
+        openApiDocPath[pathWithId] = {};
 
         //put
-        paths[pathWithId]["put"] = {
+        openApiDocPath[pathWithId]["put"] = {
           description: `update ${collectionName} by id`,
           tags: [`${collectionName}`],
           operationId: "updateById",
@@ -180,7 +176,7 @@ function createEndpoints() {
         });
 
         //delete
-        paths[pathWithId]["delete"] = {
+        openApiDocPath[pathWithId]["delete"] = {
           description: `remove ${collectionName} by id`,
           tags: [`${collectionName}`],
           responses: {
@@ -231,22 +227,21 @@ function createEndpoints() {
         });
       });
 
-
       const CUSTOM_CSS: string = process.env.CUSTOM_CSS
         ? process.env.CUSTOM_CSS
         : "";
 
-        const CUSTOM_CSS_URL: string = process.env.CUSTOM_CSS_URL
+      const CUSTOM_CSS_URL: string = process.env.CUSTOM_CSS_URL
         ? process.env.CUSTOM_CSS_URL
         : "";
 
-        var options = {
+      var options = {
         explorer: false,
         swaggerOptions: {
           docExpansion: "none",
         },
         customCss: `${CUSTOM_CSS}`,
-        customCssUrl : `${CUSTOM_CSS_URL}`,
+        customCssUrl: `${CUSTOM_CSS_URL}`,
         customSiteTitle: `${databaseName} api`,
       };
 
@@ -260,79 +255,46 @@ function createEndpoints() {
 
       var optionss = {
         swaggerOptions: {
-          url: '/v2/swagger.json'
-        }
-      }
-      
-      app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(undefined, optionss));
-
-     
-
-      app.get("/v2/swagger.json", async (req, res) => {
-        console.log(
-          "get items, url: %s, collection: %s",
-          req.url,
-
-        );
-
-
-        const cc = {
-          "swagger": "2.0",
-          "info": {
-            "version": "1.0.0",
-            "title": "Swagger Petstore",
-            "description": "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification",
-            "termsOfService": "http://swagger.io/terms/",
-            "contact": {
-              "name": "Swagger API Team"
-            },
-            "license": {
-              "name": "MIT"
-            }
+          url: "/api-docs/v3/openapi.json",
+          version: `${version}`,
+          title: `project ${databaseName}`,
+          description: `api information for project ${databaseName}`,
+          contact: {
+            name: "Dominik Bruhn",
           },
-          "host": "petstore.swagger.io",
-          "basePath": "/api",
-          "schemes": [
-            "http"
-          ],
-          "consumes": [
-            "application/json"
-          ],
-          "produces": [
-            "application/json"
-          ],
-          "paths": paths
-          
-          
-          
-          ,
-          "definitions": {
-            "Pet": {
-              "type": "object",
-              "required": [
-                "id",
-                "name"
-              ],
-              "properties": {
-                "id": {
-                  "type": "integer",
-                  "format": "int64"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "tag": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
+        },
+      };
 
-        res.status(200).send(cc);
+      app.use(
+        "/swagger-ui",
+        swaggerUi.serve,
+        swaggerUi.setup(undefined, optionss)
+      );
+
+      app.get("/api-docs/v3/openapi.json", async (req, res) => {
+        console.log("get items, url: %s, collection: %s", req.url);
+
+        //https://swagger.io/specification/#infoObject
+        const openApiDoc = {
+          openapi: "3.0.3",
+          info: {
+            version: `${version}`,
+            url: req.protocol + '://' + req.host,
+            title: `project ${databaseName}`,
+            description: `api information for project ${databaseName}`,
+            contact: {
+              name: "Dominik Bruhn",
+            },
+          },
+          basePath: "/",
+          schemes: ["http"],
+          consumes: ["application/json"],
+          produces: ["application/json"],
+          paths: openApiDocPath,
+        };
+
+        res.status(200).send(openApiDoc);
       });
-
-
 
       app.listen(port, () => {
         console.log(`server started on port ${port}`);
