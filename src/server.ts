@@ -4,21 +4,8 @@ import { Collection, Db, MongoClient, ObjectId } from "mongodb";
 import swaggerUi from "swagger-ui-express";
 import swaggerJsDoc from "swagger-jsdoc";
 
-const getCircularReplacer = () => {
-  const seen = new WeakSet();
-  return (key: string, value: string) => {
-    console.log(key);
-    if (typeof value === "object" && value !== null) {
-      if (seen.has(value)) {
-        return;
-      }
-      seen.add(value);
-    }
-    return value;
-  };
-};
-
 dotenv.config();
+const version: string | undefined = process.env.npm_package_version;
 const port: number = process.env.PORT ? Number(process.env.PORT) : 8080;
 const databaseConnectionString: string = process.env.CONNECTION_STRING
   ? process.env.CONNECTION_STRING
@@ -32,14 +19,6 @@ const client: MongoClient = new MongoClient(databaseConnectionString);
 const app = express();
 app.use(express.json());
 
-const DisableAuthorizePlugin = function () {
-  return {
-    wrapComponents: {
-      authorizeBtn: () => () => null,
-    },
-  };
-};
-
 function createEndpoints() {
   console.log("create endpoints");
 
@@ -47,7 +26,7 @@ function createEndpoints() {
   const swaggerOptions = {
     swaggerDefinition: {
       info: {
-        version: "1.0.0",
+        version: `${version}`,
         url: "",
         title: `project ${databaseName}`,
         description: `api information for project ${databaseName}`,
@@ -58,7 +37,7 @@ function createEndpoints() {
       paths: <any>{},
     },
     apis: [],
-    security: [],
+    security: {},
   };
 
   client
@@ -80,7 +59,7 @@ function createEndpoints() {
 
         //get
         swaggerOptions.swaggerDefinition.paths[path]["get"] = {
-          description: `returns all ${collectionName}'s`,
+          description: `get all ${collectionName} objects avaliable`,
           tags: [`${collectionName}`],
           responses: {
             200: {
@@ -109,7 +88,7 @@ function createEndpoints() {
 
         //post
         swaggerOptions.swaggerDefinition.paths[path]["post"] = {
-          description: `add ${collectionName}`,
+          description: `one or more elements of type ${collectionName} can be saved with this endpoint. f.e. insert one object: {}, insert multiple: [{},{},{},...] .`,
           tags: [`${collectionName}`],
           operationId: "add",
           produces: ["application/json"],
@@ -133,25 +112,19 @@ function createEndpoints() {
         };
         app.post(path, async (req, res) => {
           console.log(
-            "insert item for collection %s, json: %s",
+            "insert item(s) for collection %s, json: %s",
             path,
             req.body
           );
 
-
-          
-          if (typeof req.body === 'string' || req.body instanceof String){
-            console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-          }
-
-          const result: any = await collection.insertOne(req.body);
+          const value = req.body;
+          let result: any =
+            value instanceof Array
+              ? await collection.insertMany(value)
+              : await collection.insertOne(value);
           result
-            ? res
-                .status(201)
-                .send(
-                  `successfully created a new ${collectionName} with id %s${result.insertedId}`
-                )
-            : res.status(500).send(`failed to create a new ${path}.`);
+            ? res.status(201).send(`successfully.`)
+            : res.status(500).send(`failed to create object(s): ${path}.`);
         });
 
         const pathWithId = path.concat("/{id}");
@@ -185,12 +158,11 @@ function createEndpoints() {
               schema: {
                 type: "object",
                 required: true,
-                properties: {
-                  _id: { type: "string", format: "uuid", default: null },
-                },
+                properties: {},
               },
               style: "simple",
-            },{
+            },
+            {
               name: "id",
               in: "path",
               description: `id of ${collectionName} to delete`,
@@ -273,7 +245,30 @@ function createEndpoints() {
       });
 
       const swaggerDocs = swaggerJsDoc(swaggerOptions);
-      app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+      const CUSTOM_CSS: string = process.env.CUSTOM_CSS
+        ? process.env.CUSTOM_CSS
+        : "";
+
+        const CUSTOM_CSS_URL: string = process.env.CUSTOM_CSS_URL
+        ? process.env.CUSTOM_CSS_URL
+        : "";
+
+        var options = {
+        explorer: false,
+        swaggerOptions: {
+          docExpansion: "none",
+        },
+        customCss: `${CUSTOM_CSS}`,
+        customCssUrl : `${CUSTOM_CSS_URL}`,
+        customSiteTitle: `${databaseName} api`,
+      };
+
+      app.use(
+        "/api-docs",
+        swaggerUi.serve,
+        swaggerUi.setup(swaggerDocs, options)
+      );
 
       app.listen(port, () => {
         console.log(`server started on port ${port}`);
