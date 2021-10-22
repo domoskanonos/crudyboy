@@ -264,11 +264,105 @@ function createEndpoints() {
         customSiteTitle: `${databaseName} api`,
       };
 
+      /**
       app.use(
         "/api-docs",
         swaggerUi.serve,
         swaggerUi.setup(swaggerDocs, options)
       );
+ */
+
+      var optionss = {
+        swaggerOptions: {
+          url: '/v2/swagger.json'
+        }
+      }
+      
+      app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(undefined, optionss));
+
+     
+
+      app.get("/v2/swagger.json", async (req, res) => {
+        console.log(
+          "get items, url: %s, collection: %s",
+          req.url,
+
+        );
+
+
+        const cc = {
+          "swagger": "2.0",
+          "info": {
+            "version": "1.0.0",
+            "title": "Swagger Petstore",
+            "description": "A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification",
+            "termsOfService": "http://swagger.io/terms/",
+            "contact": {
+              "name": "Swagger API Team"
+            },
+            "license": {
+              "name": "MIT"
+            }
+          },
+          "host": "petstore.swagger.io",
+          "basePath": "/api",
+          "schemes": [
+            "http"
+          ],
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "paths": {
+            "/pets": {
+              "get": {
+                "description": "Returns all pets from the system that the user has access to",
+                "produces": [
+                  "application/json"
+                ],
+                "responses": {
+                  "200": {
+                    "description": "A list of pets.",
+                    "schema": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/Pet"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "definitions": {
+            "Pet": {
+              "type": "object",
+              "required": [
+                "id",
+                "name"
+              ],
+              "properties": {
+                "id": {
+                  "type": "integer",
+                  "format": "int64"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "tag": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+
+        res.status(200).send(cc);
+      });
+
+
 
       app.listen(port, () => {
         console.log(`server started on port ${port}`);
