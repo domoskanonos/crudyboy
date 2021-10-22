@@ -51,13 +51,15 @@ function createEndpoints() {
                 "application/json": {
                   schema: {
                     type: "array",
+                    items: {
+                      type: "object",
+                    },
                   },
                 },
               },
             },
           },
           operationId: "findAll${collectionName}",
-          produces: ["application/json"],
         };
         app.get(path, async (req, res) => {
           console.log(
@@ -74,24 +76,31 @@ function createEndpoints() {
           description: `one or more elements of type ${collectionName} can be saved with this endpoint. f.e. insert one object: {}, insert multiple: [{},{},{},...] .`,
           tags: [`${collectionName}`],
           operationId: "add",
-          produces: ["application/json"],
-          consumes: ["application/json"],
-          parameters: [
-            {
-              name: `${collectionName}`,
-              in: "body",
-              description: `object of ${collectionName} as json`,
-              required: true,
-              schema: {
-                type: "object",
-                required: true,
-                properties: {
-                  _id: { type: "string", format: "uuid", default: null },
+          responses: {
+            201: {
+              description: `a list of ${collectionName}`,
+              content: {
+                "application/text": {
+                  schema: {
+                    type: "string",
+                  },
                 },
               },
-              style: "simple",
             },
-          ],
+          },
+          requestBody: {
+            description: `object of ${collectionName} as json`,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    _id: { type: "string", format: "uuid", default: null },
+                  },
+                }
+              },
+            },
+          },
         };
         app.post(path, async (req, res) => {
           console.log(
@@ -130,21 +139,19 @@ function createEndpoints() {
               },
             },
           },
-          produces: ["application/json"],
-          consumes: ["application/json"],
-          parameters: [
-            {
-              name: "object",
-              in: "body",
-              description: `object of ${collectionName} as json`,
-              required: true,
-              schema: {
-                type: "object",
-                required: true,
-                properties: {},
+          requestBody: {
+            description: `object of ${collectionName} as json`,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                  },
+                }
               },
-              style: "simple",
             },
+          },
+          parameters: [
             {
               name: "id",
               in: "path",
@@ -235,61 +242,50 @@ function createEndpoints() {
         ? process.env.CUSTOM_CSS_URL
         : "";
 
-      var options = {
-        explorer: false,
-        swaggerOptions: {
-          docExpansion: "none",
-        },
-        customCss: `${CUSTOM_CSS}`,
-        customCssUrl: `${CUSTOM_CSS_URL}`,
-        customSiteTitle: `${databaseName} api`,
-      };
-
-      /**
-      app.use(
-        "/api-docs",
-        swaggerUi.serve,
-        swaggerUi.setup(swaggerDocs, options)
-      );
- */
-
-      var optionss = {
-        swaggerOptions: {
-          url: "/api-docs/v3/openapi.json",
-          version: `${version}`,
-          title: `project ${databaseName}`,
-          description: `api information for project ${databaseName}`,
-          contact: {
-            name: "Dominik Bruhn",
-          },
-        },
-      };
-
       app.use(
         "/swagger-ui",
         swaggerUi.serve,
-        swaggerUi.setup(undefined, optionss)
-      );
+        swaggerUi.setup(undefined, {
+          explorer: false,
 
-      app.get("/api-docs/v3/openapi.json", async (req, res) => {
-        console.log("get items, url: %s, collection: %s", req.url);
-
-        //https://swagger.io/specification/#infoObject
-        const openApiDoc = {
-          openapi: "3.0.3",
-          info: {
+          customCss: `${CUSTOM_CSS}`,
+          customCssUrl: `${CUSTOM_CSS_URL}`,
+          customSiteTitle: `${databaseName} api`,
+          swaggerOptions: {
+            docExpansion: "none",
+            url: "/api-docs/v3/openapi.json",
             version: `${version}`,
-            url: req.protocol + '://' + req.host,
             title: `project ${databaseName}`,
             description: `api information for project ${databaseName}`,
             contact: {
               name: "Dominik Bruhn",
             },
           },
-          basePath: "/",
-          schemes: ["http"],
-          consumes: ["application/json"],
-          produces: ["application/json"],
+        })
+      );
+
+      app.get("/api-docs/v3/openapi.json", async (req, res) => {
+        console.log("get items, url: %s, collection: %s", req.url);
+
+        const requestURL = new URL(req.url, `http://${req.headers.host}`);
+
+        //https://swagger.io/specification/#infoObject
+        const openApiDoc = {
+          openapi: "3.0.3",
+          servers: [
+            {
+              url: requestURL.protocol.concat("//").concat(requestURL.host),
+              description: "Server",
+            },
+          ],
+          info: {
+            version: `${version}`,
+            title: `project ${databaseName}`,
+            description: `api information for project ${databaseName}`,
+            contact: {
+              name: "Dominik Bruhn",
+            },
+          },
           paths: openApiDocPath,
         };
 
