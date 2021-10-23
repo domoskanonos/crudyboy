@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 import express from "express";
-import { Collection, Db, MongoClient, ObjectId } from "mongodb";
+import { Collection, Db, FindCursor, MongoClient, ObjectId } from "mongodb";
 import swaggerUi from "swagger-ui-express";
 
 dotenv.config();
@@ -79,7 +79,7 @@ function createEndpoints() {
 
         //get
         openApiDocPath[path]["get"] = {
-          description: `get all ${collectionName} objects avaliable`,
+          description: `get ${collectionName} objects by query`,
           tags: [`${collectionName}`],
           responses: {
             200: {
@@ -96,7 +96,27 @@ function createEndpoints() {
               },
             },
           },
-          operationId: "findAll${collectionName}",
+          parameters: [
+            {
+              name: "page",
+              in: "query",
+              description: `search page index`,
+              default: 0,
+              schema: {
+                type: "string",
+              },
+            },
+            {
+              name: "limit",
+              in: "query",
+              default: 10,
+              description: `limit search result`,
+              schema: {
+                type: "string",
+              },
+            },
+          ],
+          operationId: "find${collectionName}",
         };
         app.get(path, async (req, res) => {
           console.log(
@@ -104,8 +124,40 @@ function createEndpoints() {
             req.url,
             collectionName
           );
-          const list = await collection.find({}).toArray();
-          res.status(200).send(list);
+
+          //query - start
+          var query: any = {};
+          for (let key of Object.keys(req.query)) {
+            let mealName = req.query[key];
+            if (key != "limit" && key != "page") {
+              console.log(mealName);
+              query[key] = new RegExp(".*" + mealName + ".*");
+            }
+          }
+          //query - end
+
+          const cursor: FindCursor = collection.find(query);
+
+          // pagination - start
+          let limit: number | null =
+            req.query.limit && typeof req.query.limit == "string"
+              ? parseInt(req.query.limit)
+              : null;
+          let page: number | null =
+            req.query.page && typeof req.query.page == "string"
+              ? parseInt(req.query.page)
+              : null;
+
+          if (limit != null && page != null) {
+            const startIndex = Number(page) * Number(limit);
+            cursor.skip(startIndex).limit(limit);
+          } else if (limit) {
+            cursor.limit(limit);
+          }
+          // pagination - end
+
+          const retval = await cursor.toArray();
+          res.status(200).send(retval);
         });
 
         //post
