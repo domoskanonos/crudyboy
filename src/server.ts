@@ -101,17 +101,17 @@ function createEndpoints() {
               name: "page",
               in: "query",
               description: `search page index`,
-              default: 0,
               schema: {
+                default: 0,
                 type: "string",
               },
             },
             {
               name: "limit",
               in: "query",
-              default: 10,
               description: `limit search result`,
               schema: {
+                default: 10,
                 type: "string",
               },
             },
