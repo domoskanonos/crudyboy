@@ -18,23 +18,40 @@ const client: MongoClient = new MongoClient(databaseConnectionString);
 const app = express();
 app.use(express.json());
 
-// Add headers before the routes are defined
+// add headers before the routes are defined
 app.use(express.json(), function (_req, res, next) {
-  
-  // Website you wish to allow to connect
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // website you wish to allow to connect
+  const accessControlAllowOrigin: string = process.env
+    .REQUEST_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN
+    ? process.env.REQUEST_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN
+    : "*";
+  res.setHeader("Access-Control-Allow-Origin", accessControlAllowOrigin);
 
-  // Request methods you wish to allow
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  // request methods you wish to allow
+  const accessControlAllowMethods: string = process.env
+    .REQUEST_HEADER_ACCESS_CONTROL_ALLOW_METHODS
+    ? process.env.REQUEST_HEADER_ACCESS_CONTROL_ALLOW_METHODS
+    : "GET, POST, OPTIONS, PUT, PATCH, DELETE";
+  res.setHeader("Access-Control-Allow-Methods", accessControlAllowMethods);
 
-  // Request headers you wish to allow
-  res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+  // request headers you wish to allow
+  const accessControlAllowHeaders: string = process.env
+    .REQUEST_HEADER_ACCESS_CONTROL_ALLOW_HEADERS
+    ? process.env.REQUEST_HEADER_ACCESS_CONTROL_ALLOW_HEADERS
+    : "X-Requested-With,content-type";
+  res.setHeader("Access-Control-Allow-Headers", accessControlAllowHeaders);
 
-  // Set to true if you need the website to include cookies in the requests sent
-  // to the API (e.g. in case you use sessions)
-  res.setHeader('Access-Control-Allow-Credentials', "true");
+  // force include cookies in the requests, e.g. in case you use sessions
+  const accessControlAllowCredentials: string = process.env
+    .REQUEST_HEADER_ACCESS_CONTROL_ALLOW_CREDENTIALS
+    ? process.env.REQUEST_HEADER_ACCESS_CONTROL_ALLOW_CREDENTIALS
+    : "true";
+  res.setHeader(
+    "Access-Control-Allow-Credentials",
+    accessControlAllowCredentials
+  );
 
-  // Pass to next layer of middleware
+  // pass to next layer of middleware
   next();
 });
 
@@ -117,7 +134,7 @@ function createEndpoints() {
                   properties: {
                     _id: { type: "string", format: "uuid", default: null },
                   },
-                }
+                },
               },
             },
           },
@@ -165,9 +182,8 @@ function createEndpoints() {
               "application/json": {
                 schema: {
                   type: "object",
-                  properties: {
-                  },
-                }
+                  properties: {},
+                },
               },
             },
           },
