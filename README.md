@@ -4,10 +4,11 @@ With Crudyboy you can quickly and easily generate a crud rest service from a Mon
 Crudyboy is a ready to run rest crud service, you only need a connection to a MongoDB.
 Crudyboy automaticalliy read out all collections from a given database and provides corresponding crud operations via rest.
 
-|project info||
+### project info
+|||
 |:-------------|:-------------|
 |license|<nobr>![GitHub](https://img.shields.io/github/license/domoskanonos/crudyboy)</nobr>|
-|github|<nobr>[![Published on git](https://img.shields.io/github/languages/code-size/domoskanonos/crudyboy)](https://github.com/domoskanonos/crudyboy)</nobr>|
+|code size|<nobr>[![Published on git](https://img.shields.io/github/languages/code-size/domoskanonos/crudyboy)](https://github.com/domoskanonos/crudyboy)</nobr>|
 |donation|<nobr>[![donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SWGKEVSK2PDEE)</nobr>|
 
 
