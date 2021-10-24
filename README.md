@@ -7,6 +7,7 @@ Crudyboy automaticalliy read out all collections from a given database and provi
 ### project info
 |||
 |:-------------|:-------------|
+|npm|<nobr>[![Published on npm](https://img.shields.io/npm/l/@domoskanonos/crudyboy)](https://www.npmjs.com/package/@domoskanonos/crudyboy) [![Published on npm](https://img.shields.io/npm/v/@domoskanonos/crudyboy)](https://www.npmjs.com/package/@domoskanonos/crudyboy) [![Published on npm](https://img.shields.io/bundlephobia/min/@domoskanonos/crudyboy)](https://www.npmjs.com/package/@domoskanonos/crudyboy) [![Published on npm](https://img.shields.io/bundlephobia/minzip/@domoskanonos/crudyboy)](https://www.npmjs.com/package/@domoskanonos/crudyboy) [![Published on npm](https://img.shields.io/npm/dw/@domoskanonos/crudyboy)](https://www.npmjs.com/package/@domoskanonos/crudyboy)</nobr>|
 |license|<nobr>![GitHub](https://img.shields.io/github/license/domoskanonos/crudyboy)</nobr>|
 |code size|<nobr>[![Published on git](https://img.shields.io/github/languages/code-size/domoskanonos/crudyboy)](https://github.com/domoskanonos/crudyboy)</nobr>|
 |donation|<nobr>[![donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SWGKEVSK2PDEE)</nobr>|
@@ -29,7 +30,7 @@ Crudyboy automaticalliy read out all collections from a given database and provi
 ### init server example (typescript)
     //new instance
     const server: CrudyboyServer = new CrudyboyServer(8080,"mongodb://mongoadmin:mongo@localhost:27017","mydatabase",".customCss {}","https://myserver/my-custom.css","*","GET, POST, OPTIONS, PUT, PATCH, DELETE","X-Requested-With,content-type","X-Requested-With,content-type","true");
-    
+
     //init server
     server.init();
 
