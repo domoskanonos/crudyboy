@@ -28,8 +28,8 @@
   "author": "Dominik Bruhn",
   "scripts": {
     "tsc": "tsc",
-    "start": "npm run tsc && node lib/server.js",
-    "start:watch": "nodemon -L src/server.ts",
+    "start": "npm run tsc && node lib/run.js",
+    "start:watch": "nodemon -L src/run.ts",
     "preversion": "",
     "new-patch": "npm version patch -m \"new patch version: %s\" --force",
     "new-minor": "npm version minor -m \"new minor version: %s\" --force",

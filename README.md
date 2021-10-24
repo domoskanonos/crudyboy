@@ -12,6 +12,27 @@ Crudyboy automaticalliy read out all collections from a given database and provi
 |donation|<nobr>[![donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SWGKEVSK2PDEE)</nobr>|
 
 
+## npm
+### install server with npm
+    npm i @domoskanonos/crudyboy
+
+### constructor
+    new CrudyboyServer(port: Number,
+        connectionString: string,
+        databaseName: string,
+        customCSS: string,
+        customCSSUrl: string,
+        accessControlAllowOrigin: string,
+        accessControlAllowMethods: string,
+        accessControlAllowHeaders: string,
+        accessControlAllowCredentials: string)
+### init server example (typescript)
+    //new instance
+    const server: CrudyboyServer = new CrudyboyServer(8080,"mongodb://mongoadmin:mongo@localhost:27017","mydatabase",".customCss {}","https://myserver/my-custom.css","*","GET, POST, OPTIONS, PUT, PATCH, DELETE","X-Requested-With,content-type","X-Requested-With,content-type","true");
+    
+    //init server
+    server.init();
+
 ## docker
 
 ### run with docker (example)
@@ -35,7 +56,7 @@ Crudyboy automaticalliy read out all collections from a given database and provi
 |CONNECTION_STRING|mongodb://mongoadmin:mongo@localhost:27017
 |DATABASE_NAME|mydatabase|
 |PORT|8080|
-|CUSTOM_CSS|.someClass {}|
+|CUSTOM_CSS|.customCss {}|
 |CUSTOM_CSS_URL|https://myserver/my-custom.css|
 |REQUEST_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN|*|
 |REQUEST_HEADER_ACCESS_CONTROL_ALLOW_METHODS|GET, POST, OPTIONS, PUT, PATCH, DELETE|
