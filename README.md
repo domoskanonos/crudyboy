@@ -1,6 +1,6 @@
 # crudyboy
 
-With Crudyboy you can quickly and easily generate a crud rest service from a MongoDB.
+with crudyboy you can quickly and easily generate a crud rest service from a MongoDB.
 Crudyboy is a ready to run rest crud service, you only need a connection to a MongoDB.
 Crudyboy automaticalliy read out all collections from a given database and provides corresponding crud operations via rest.
 
@@ -9,7 +9,7 @@ Crudyboy automaticalliy read out all collections from a given database and provi
 |:-------------|:-------------|
 |npm|<nobr>[![Published on npm](https://img.shields.io/npm/l/@domoskanonos/crudyboy)](https://www.npmjs.com/package/@domoskanonos/crudyboy) [![Published on npm](https://img.shields.io/npm/v/@domoskanonos/crudyboy)](https://www.npmjs.com/package/@domoskanonos/crudyboy) [![Published on npm](https://img.shields.io/bundlephobia/min/@domoskanonos/crudyboy)](https://www.npmjs.com/package/@domoskanonos/crudyboy) [![Published on npm](https://img.shields.io/bundlephobia/minzip/@domoskanonos/crudyboy)](https://www.npmjs.com/package/@domoskanonos/crudyboy) [![Published on npm](https://img.shields.io/npm/dw/@domoskanonos/crudyboy)](https://www.npmjs.com/package/@domoskanonos/crudyboy)</nobr>|
 |git|<nobr>![GitHub](https://img.shields.io/github/license/domoskanonos/crudyboy)</nobr> <nobr>[![Published on git](https://img.shields.io/github/languages/code-size/domoskanonos/crudyboy)](https://github.com/domoskanonos/crudyboy)</nobr>|
-|docker|https://hub.docker.com/r/domoskanonos/crudyboy|
+|docker|![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/domoskanonos/crudyboy)|
 |donation|<nobr>[![donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SWGKEVSK2PDEE)</nobr>|
 
 
@@ -63,3 +63,7 @@ Crudyboy automaticalliy read out all collections from a given database and provi
 |REQUEST_HEADER_ACCESS_CONTROL_ALLOW_METHODS|GET, POST, OPTIONS, PUT, PATCH, DELETE|
 |REQUEST_HEADER_ACCESS_CONTROL_ALLOW_HEADERS|X-Requested-With,content-type|
 |REQUEST_HEADER_ACCESS_CONTROL_ALLOW_CREDENTIALS|true|
+
+
+### docker images location
+https://hub.docker.com/r/domoskanonos/crudyboy
