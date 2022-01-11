@@ -184,7 +184,31 @@ export class CrudyboyServer {
 
         const openApiDocPath: any = {};
 
+        //file upload
+        openApiDocPath["upload"]={}
+        openApiDocPath["upload"]["post"] = {
+            description: `upload files`,
+            tags: ["file"],
+            requestBody: {
+                description: `upload fiels`,
+                content: {
+                    "multipart/form-data": {
+                        schema: {
+                            type: "object",
+                            properties: {
+                                fileName: {type: "string", default: null}
+                            },
+                        },
+                        format: "binary"
+                    },
+                },
+            },
+            operationId: "uploadFile",
+        };
+
         this.generateOpenApiDocEndpoint(openApiDocPath, []);
+
+        console.log(JSON.stringify(openApiDocPath))
 
         this.app.get("/api-docs/v3/openapi.json", async (req: Request, res: Response) => {
             console.log("get items, url: %s, collection: %s", req.url);
