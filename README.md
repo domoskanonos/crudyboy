@@ -57,11 +57,19 @@ database and provides corresponding crud operations via rest.
                 ports:
                     - "8080:8080"
                 environment:
-                    - DB_HOST: localhost
-                    - DB_PORT: 5432
-                    - DB_USER: user
-                    - DB_PASSWORD: pwd
-                    - DB_NAME: mydatabase
+                    DB_HOST: localhost
+                    DB_PORT: 5432
+                    DB_USER: user
+                    DB_PASSWORD: pwd
+                    DB_NAME: mydatabase
+                    PORT: 8080
+                    CUSTOM_CSS: .customCss {}
+                    CUSTOM_CSS_URL: https://myserver/my-custom.css
+                    REQUEST_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN: *
+                    REQUEST_HEADER_ACCESS_CONTROL_ALLOW_METHODS: GET, POST, OPTIONS, PUT, PATCH, DELETE
+                    REQUEST_HEADER_ACCESS_CONTROL_ALLOW_HEADERS: X-Requested-With,content-type
+                    REQUEST_HEADER_ACCESS_CONTROL_ALLOW_CREDENTIALS: true
+
 
 ### environmental vars
 
