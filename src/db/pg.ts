@@ -1,5 +1,6 @@
 import { Client } from "pg";
 import { DbClient } from "./db-client";
+import { Request } from "express";
 
 export class PostgresqlClient extends DbClient {
   private client: Client | undefined;
@@ -36,12 +37,52 @@ export class PostgresqlClient extends DbClient {
     return retval;
   }
 
-  async search(collection: string): Promise<any[]> {
-    const result = await this.getClient().query(`SELECT * FROM ${collection}`);
+  async search(collection: string, req: Request): Promise<any[]> {
+    //query - start
+    const searchParams = Object.keys(req.query);
+    let whereQuery: string = "";
+    if (searchParams.length > 0) {
+      for (let key of searchParams) {
+        let mealName = req.query[key];
+        if (key != "limit" && key != "page" && mealName) {
+          if (whereQuery.length == 0) {
+            whereQuery = " WHERE ";
+          } else {
+            whereQuery = whereQuery.concat("AND ");
+          }
+          whereQuery = whereQuery
+            .concat("data::json->>'")
+            .concat(key)
+            .concat("' LIKE '%")
+            .concat(String(mealName))
+            .concat("%'");
+        }
+      }
+    }
+    //query - end
+
+    // pagination - start
+    let limit: number | null =
+      req.query.limit && typeof req.query.limit == "string"
+        ? parseInt(req.query.limit)
+        : null;
+    let limitQuery = limit ? " LIMIT ".concat(String(limit)) : "";
+
+    let page: number | null =
+      req.query.page && typeof req.query.page == "string"
+        ? parseInt(req.query.page)
+        : null;
+
+    let offsetQuery: string = "";
+    if (limit != null && page != null) {
+      offsetQuery = " OFFSET ".concat(String(Number(page) * Number(limit)));
+    }
+
+    const sql = `SELECT data FROM ${collection}${whereQuery}${limitQuery}${offsetQuery}`;
+    console.log(sql);
+    const result = await this.getClient().query(sql);
     const retval: any[] = [];
-    console.log(result.rows);
     result.rows.forEach((row) => {
-      console.log(row);
       retval.push(row);
     });
     return retval;

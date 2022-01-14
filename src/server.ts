@@ -70,7 +70,7 @@ export class CrudyboyServer {
           collectionName
         );
 
-        const retval: any[] = await this.client.search(collectionName);
+        const retval: any[] = await this.client.search(collectionName, req);
         res.status(200).send(retval);
       });
 

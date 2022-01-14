@@ -1,3 +1,5 @@
+import { Request } from "express";
+
 export interface DBClientConfig {
   user: string;
   host: string;
@@ -16,7 +18,7 @@ export abstract class DbClient {
 
   abstract collections(): Promise<string[]>;
 
-  abstract search(collection: string): Promise<any[]>;
+  abstract search(collection: string, request: Request): Promise<any[]>;
 
   abstract insertOne(collection: string, value: any): Promise<any>;
 
