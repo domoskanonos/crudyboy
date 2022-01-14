@@ -14,7 +14,6 @@ export class XXX extends DbClient {
     this.client = new MongoClient(url);
     this.client.connect();
     this.db = this.client.db(dbName);
-    const collection = db.collection("documents");
   }
 
   private getDb(): Db {
