@@ -82,9 +82,10 @@ export class CrudyboyServer {
         );
 
         const value = req.body;
-
-        let result: any = [];
-
+        let result: any =
+          value instanceof Array
+            ? await this.client.insertMany(collectionName, value)
+            : await this.client.insertOne(collectionName, value);
         result
           ? res.status(201).send(`successfully.`)
           : res.status(500).send(`failed to create object(s): ${path}.`);
@@ -93,27 +94,26 @@ export class CrudyboyServer {
       this.app.put(path.concat("/:id"), async (req: Request, res: Response) => {
         const id = req?.params?.id;
         const item = req.body;
+
         console.log(
-          "update item for collection %s, id=%s, json: %s",
-          collectionName,
-          id,
-          item
+          "insert item(s) for collection %s, json: %s",
+          path,
+          req.body
         );
 
-        const result = {};
+        let result: any = await this.client.update(collectionName, id, item);
+
         result
-          ? res.status(200).send(`successfully updated ${path} with id ${id}`)
-          : res
-              .status(304)
-              .send(`${collectionName} with id: ${id} not updated`);
+          ? res.status(201).send(`successfully.`)
+          : res.status(500).send(`failed to create object(s): ${path}.`);
       });
 
       this.app.delete(
-        path.concat("/:id"),
+        path.concat("/:_id"),
         async (req: Request, res: Response) => {
-          const id = req?.params?.id;
+          const id = req?.params?._id;
 
-          const result = undefined;
+          const result = await this.client.delete(collectionName, id);
 
           if (result) {
             res
@@ -143,8 +143,6 @@ export class CrudyboyServer {
     const openApiDocPath: any = {};
 
     this.generateOpenApiDocEndpoint(openApiDocPath, collections);
-
-    console.log(JSON.stringify(openApiDocPath));
 
     let databaseName = this.client.config.database;
     this.app.get(
