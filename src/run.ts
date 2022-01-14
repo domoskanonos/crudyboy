@@ -1,12 +1,22 @@
 import * as dotenv from "dotenv";
 import {CrudyboyServer} from "./server";
+import {PostgresqlClient} from "./db/pg";
+import {DbClient, DBClientConfig} from "./db/db-client";
 
 dotenv.config();
 
+const dbClient: DbClient = new PostgresqlClient(<DBClientConfig>{
+    host: process.env.DB_HOST ? process.env.DB_HOST : "",
+    database: process.env.DB_NAME ? process.env.DB_NAME : "",
+    user: process.env.DB_USER ? process.env.DB_USER : "",
+    password: process.env.DB_PASSWORD ? process.env.DB_PASSWORD : "",
+    port: process.env.DB_PORT ? Number(process.env.DB_PORT) : 5432,
+});
+
+
 const CRUDBOY_SERVER: CrudyboyServer = new CrudyboyServer(
     process.env.PORT ? Number(process.env.PORT) : 8080,
-    process.env.CONNECTION_STRING ? process.env.CONNECTION_STRING : "",
-    process.env.DATABASE_NAME ? process.env.DATABASE_NAME : "",
+    dbClient,
     process.env.CUSTOM_CSS ? process.env.CUSTOM_CSS : "",
     process.env.CUSTOM_CSS_URL ? process.env.CUSTOM_CSS_URL : "",
     process.env.REQUEST_HEADER_ACCESS_CONTROL_ALLOW_ORIGIN
@@ -26,4 +36,6 @@ const CRUDBOY_SERVER: CrudyboyServer = new CrudyboyServer(
         : "not available"
 );
 
-CRUDBOY_SERVER.init();
+CRUDBOY_SERVER.init().then(() => {
+    console.log("server init successfully.")
+});

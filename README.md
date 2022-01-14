@@ -22,8 +22,7 @@ database and provides corresponding crud operations via rest.
 ### constructor
 
     new CrudyboyServer(port: Number,
-        connectionString: string,
-        databaseName: string,
+        dbClient: DBClient,
         customCSS: string,
         customCSSUrl: string,
         accessControlAllowOrigin: string,
@@ -34,8 +33,11 @@ database and provides corresponding crud operations via rest.
 
 ### init server example (typescript)
 
+    //new db client instance
+    const dbClient: DbClient = new PostgresqlClient(<DBClientConfig>{ host: "localhost", database: "mydatabase", user: "user", password: "pwd", port: 5432 });
+
     //new instance
-    const server: CrudyboyServer = new CrudyboyServer(8080,"mongodb://mongoadmin:mongo@localhost:27017","mydatabase",".customCss {}","https://myserver/my-custom.css","*","GET, POST, OPTIONS, PUT, PATCH, DELETE","X-Requested-With,content-type","X-Requested-With,content-type","true","1.0.0");
+    const server: CrudyboyServer = new CrudyboyServer(8080,dbClient,".customCss {}","https://myserver/my-custom.css","*","GET, POST, OPTIONS, PUT, PATCH, DELETE","X-Requested-With,content-type","X-Requested-With,content-type","true","1.0.0");
 
     //init server
     server.init();
@@ -44,7 +46,7 @@ database and provides corresponding crud operations via rest.
 
 ### run with docker (example)
 
-    docker run --restart=always -p 8080:8080 -e CONNECTION_STRING='mongodb://mongoadmin:mongo@localhost:27017' -e DATABASE_NAME='mydatabase' -e PORT='8080' -e CUSTOM_CSS_URL='<css url>' -d domoskanonos/crudyboy
+    docker run --restart=always -p 8080:8080 -e DB_HOST='localhost' -e DB_Port='5432' -e DB_USER='user' -e DB_PASSWORD='pwd' -e DB_NAME='mydatabase' -e PORT='8080' -e CUSTOM_CSS_URL='<css url>' -d domoskanonos/crudyboy
 
 ### run with docker-compose (example)
 
@@ -55,15 +57,21 @@ database and provides corresponding crud operations via rest.
                 ports:
                     - "8080:8080"
                 environment:
-                    - CONNECTION_STRING: https
-                    - DATABASE_NAME: mydatabase
+                    - DB_HOST: localhost
+                    - DB_PORT: 5432
+                    - DB_USER: user
+                    - DB_PASSWORD: pwd
+                    - DB_NAME: mydatabase
 
 ### environmental vars
 
 |key|example|
 |:-------------|:-------------|
-|CONNECTION_STRING|mongodb://mongoadmin:mongo@localhost:27017
-|DATABASE_NAME|mydatabase|
+|DB_HOST|localhost|
+|DB_PORT|5432|
+|DB_USER|user|
+|DB_PASSWORD|pwd|
+|DB_NAME|mydatabase|
 |PORT|8080|
 |CUSTOM_CSS|.customCss {}|
 |CUSTOM_CSS_URL|https://myserver/my-custom.css|
@@ -75,8 +83,11 @@ database and provides corresponding crud operations via rest.
 
 ### environmental vars example .env
 
-    CONNECTION_STRING=mongodb://mongoadmin:mongo@localhost:27017
-    DATABASE_NAME=mydatabase
+    DB_HOST=localhost
+    DB_PORT=5432
+    DB_USER=user
+    DB_PASSWORD=pwd
+    DB_NAME=mydatabase
     PORT=8080
     CUSTOM_CSS=.customCss {}
     #CUSTOM_CSS_URL=https://myserver/my-custom.css
