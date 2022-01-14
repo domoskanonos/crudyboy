@@ -8,3 +8,7 @@
     docker build --no-cache -t domoskanonos/crudyboy domoskanonos/crudyboy:1.0.3 .
 ### step 4: publish to dockerhub
     docker push domoskanonos/crudyboy:1.0.3
+
+# other docker commandsdock
+    docker container prune
+    docker image prune -a
