@@ -3,12 +3,11 @@ import swaggerUi from "swagger-ui-express";
 import { DbClient } from "./db/db-client";
 
 export class CrudyboyServer {
-  private client: DbClient;
   private app: Express;
 
   constructor(
     private port: Number,
-    private dbClient: DbClient,
+    private client: DbClient,
     private customCSS: string,
     private customCSSUrl: string,
     private accessControlAllowOrigin: string,
@@ -17,7 +16,6 @@ export class CrudyboyServer {
     private accessControlAllowCredentials: string,
     private version: string
   ) {
-    this.client = dbClient;
     this.app = express();
   }
 

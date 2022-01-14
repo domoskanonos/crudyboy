@@ -11,6 +11,7 @@ export interface DBClientConfig {
 export abstract class DbClient {
   constructor(public config: DBClientConfig) {
     this.config = config;
+    console.log(`db config, host: ${config.host}, port: ${config.port}, database: ${config.database}, user: ${config.user}`);
     this.initClient();
   }
 
@@ -26,5 +27,9 @@ export abstract class DbClient {
 
   abstract delete(collectionName: string, id: string): Promise<boolean>;
 
-  abstract update(collectionName: string, id: string, item: any): Promise<boolean>;
+  abstract update(
+    collectionName: string,
+    id: string,
+    item: any
+  ): Promise<boolean>;
 }
