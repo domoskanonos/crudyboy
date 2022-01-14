@@ -29,9 +29,7 @@ export class PostgresqlClient extends DbClient {
                                                      WHERE table_schema = 'public'
                                                      ORDER BY table_name;`);
     const retval: string[] = [];
-    console.log(result.rows);
     result.rows.forEach((row) => {
-      console.log(row);
       retval.push(row.table_name);
     });
     return retval;
@@ -96,7 +94,6 @@ export class PostgresqlClient extends DbClient {
   }
 
   async insertMany(collection: string, values: any[]) {
-    console.log(values);
     for (let i = 0; i < values.length; i++) {
       const value = values[i];
       this.insertOne(collection, value);
@@ -123,7 +120,6 @@ export class PostgresqlClient extends DbClient {
       `UPDATE ${collectionName} SET data = $1::json WHERE _id = $2;`,
       [item, _id]
     );
-    console.log(result);
     return true;
   }
 }

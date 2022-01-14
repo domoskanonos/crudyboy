@@ -1,10 +1,8 @@
 import { Request } from "express";
-import { ParamsDictionary } from "express-serve-static-core";
-import { CollectionInfo, Db, MongoClient } from "mongodb";
-import { ParsedQs } from "qs";
+import { CollectionInfo, Db, FindCursor, MongoClient, ObjectId } from "mongodb";
 import { DbClient } from "./db-client";
 
-export class XXX extends DbClient {
+export class MongoDBClient extends DbClient {
   private client: MongoClient | undefined;
   private db: Db | undefined;
 
@@ -36,22 +34,66 @@ export class XXX extends DbClient {
     return collectionNames;
   }
 
-  search(
-    _collection: string,
-    _request: Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>
-  ): Promise<any[]> {
-    throw new Error("Method not implemented.");
+  async search(collectionName: string, req: Request): Promise<any[]> {
+    //query - start
+    var query: any = {};
+    for (let key of Object.keys(req.query)) {
+      let mealName = req.query[key];
+      if (key != "limit" && key != "page") {
+        query[key] = new RegExp(".*" + mealName + ".*");
+      }
+    }
+    //query - end
+    const cursor: FindCursor = this.getDb()
+      .collection(collectionName)
+      .find(query);
+
+    // pagination - start
+    let limit: number | null =
+      req.query.limit && typeof req.query.limit == "string"
+        ? parseInt(req.query.limit)
+        : null;
+    let page: number | null =
+      req.query.page && typeof req.query.page == "string"
+        ? parseInt(req.query.page)
+        : null;
+
+    if (limit != null && page != null) {
+      const startIndex = Number(page) * Number(limit);
+      cursor.skip(startIndex).limit(limit);
+    } else if (limit) {
+      cursor.limit(limit);
+    }
+    // pagination - end
+    const retval = await cursor.toArray();
+    return retval;
   }
-  insertOne(_collection: string, _value: any): Promise<any> {
-    throw new Error("Method not implemented.");
+
+  async insertOne(collectionName: string, value: any): Promise<any> {
+    return this.getDb().collection(collectionName).insertOne(value);
   }
-  insertMany(_collection: string, _value: any[]): Promise<any> {
-    throw new Error("Method not implemented.");
+
+  async insertMany(collectionName: string, value: any[]): Promise<any> {
+    return this.getDb().collection(collectionName).insertMany(value);
   }
-  delete(_collectionName: string, _id: string): Promise<boolean> {
-    throw new Error("Method not implemented.");
+
+  async delete(collectionName: string, id: string): Promise<boolean> {
+    const query = { _id: new ObjectId(id) };
+    const result = await this.getDb()
+      .collection(collectionName)
+      .deleteOne(query);
+    return result != undefined;
   }
-  update(_collectionName: string, _id: string, _item: any): Promise<boolean> {
-    throw new Error("Method not implemented.");
+
+  async update(
+    collectionName: string,
+    id: string,
+    item: any
+  ): Promise<boolean> {
+    const query = { _id: new ObjectId(id) };
+    const result = await this.getDb()
+      .collection(collectionName)
+      .updateOne(query, { $set: item });
+    return result != undefined;
   }
 }
