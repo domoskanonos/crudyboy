@@ -76,7 +76,7 @@ export class PostgresqlClient extends DbClient {
       offsetQuery = " OFFSET ".concat(String(Number(page) * Number(limit)));
     }
 
-    const sql = `SELECT data FROM ${collection}${whereQuery}${limitQuery}${offsetQuery}`;
+    const sql = `SELECT _id, data FROM ${collection}${whereQuery}${limitQuery}${offsetQuery}`;
     console.log(sql);
     const result = await this.getClient().query(sql);
     const retval: any[] = [];
