@@ -11,7 +11,7 @@ database and provides corresponding crud operations via rest.
 |npm|<nobr>[![Published on npm](https://img.shields.io/npm/l/@domoskanonos/crudyboy)](https://www.npmjs.com/package/@domoskanonos/crudyboy) [![Published on npm](https://img.shields.io/npm/v/@domoskanonos/crudyboy)](https://www.npmjs.com/package/@domoskanonos/crudyboy) [![Published on npm](https://img.shields.io/bundlephobia/min/@domoskanonos/crudyboy)](https://www.npmjs.com/package/@domoskanonos/crudyboy) [![Published on npm](https://img.shields.io/bundlephobia/minzip/@domoskanonos/crudyboy)](https://www.npmjs.com/package/@domoskanonos/crudyboy) [![Published on npm](https://img.shields.io/npm/dw/@domoskanonos/crudyboy)](https://www.npmjs.com/package/@domoskanonos/crudyboy)</nobr>|
 |git|<nobr>![GitHub](https://img.shields.io/github/license/domoskanonos/crudyboy)</nobr> <nobr>[![Published on git](https://img.shields.io/github/languages/code-size/domoskanonos/crudyboy)](https://github.com/domoskanonos/crudyboy)</nobr>|
 |docker|![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/domoskanonos/crudyboy)|
-|donation|<nobr>[![donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SWGKEVSK2PDEE)</nobr>|
+|donation|<nobr>[![donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_buttonid=SWGKEVSK2PDEE)</nobr>|
 
 ## npm
 

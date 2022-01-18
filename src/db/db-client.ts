@@ -1,35 +1,43 @@
-import { Request } from "express";
+import {Request} from "express";
+
+export interface Property {
+    name: string;
+    type: string;
+    defaultValue: any;
+}
 
 export interface DBClientConfig {
-  user: string;
-  host: string;
-  database: string;
-  password: string;
-  port: number;
+    user: string;
+    host: string;
+    database: string;
+    password: string;
+    port: number;
 }
 
 export abstract class DbClient {
-  constructor(public config: DBClientConfig) {
-    this.config = config;
-    console.log(`db config, host: ${config.host}, port: ${config.port}, database: ${config.database}, user: ${config.user}`);
-    this.initClient();
-  }
+    constructor(public config: DBClientConfig) {
+        this.config = config;
+        console.log(`db config, host: ${config.host}, port: ${config.port}, database: ${config.database}, user: ${config.user}`);
+        this.initClient();
+    }
 
-  protected abstract initClient(): void;
+    protected abstract initClient(): void;
 
-  abstract collections(): Promise<string[]>;
+    abstract collections(): Promise<string[]>;
 
-  abstract search(collection: string, request: Request): Promise<any[]>;
+    abstract search(collection: string, request: Request): Promise<any[]>;
 
-  abstract insertOne(collection: string, value: any): Promise<any>;
+    abstract insertOne(collection: string, value: any): Promise<any>;
 
-  abstract insertMany(collection: string, value: any[]): Promise<any>;
+    abstract insertMany(collection: string, value: any[]): Promise<any>;
 
-  abstract delete(collectionName: string, id: string): Promise<boolean>;
+    abstract delete(collectionName: string, id: string): Promise<boolean>;
 
-  abstract update(
-    collectionName: string,
-    id: string,
-    item: any
-  ): Promise<boolean>;
+    abstract update(
+        collectionName: string,
+        item: any
+    ): Promise<boolean>;
+
+    abstract getProperties(collection: string): Promise<Property[]>;
+
 }

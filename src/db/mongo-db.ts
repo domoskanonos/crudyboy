@@ -1,6 +1,6 @@
 import { Request } from "express";
 import { CollectionInfo, Db, FindCursor, MongoClient, ObjectId } from "mongodb";
-import { DbClient } from "./db-client";
+import {DbClient, Property} from "./db-client";
 
 export class MongoDBClient extends DbClient {
   private client: MongoClient | undefined;
@@ -78,7 +78,7 @@ export class MongoDBClient extends DbClient {
   }
 
   async delete(collectionName: string, id: string): Promise<boolean> {
-    const query = { _id: new ObjectId(id) };
+    const query = { id: new ObjectId(id) };
     const result = await this.getDb()
       .collection(collectionName)
       .deleteOne(query);
@@ -87,13 +87,18 @@ export class MongoDBClient extends DbClient {
 
   async update(
     collectionName: string,
-    id: string,
     item: any
   ): Promise<boolean> {
-    const query = { _id: new ObjectId(id) };
+    const query = { id: new ObjectId(item._id) };
     const result = await this.getDb()
       .collection(collectionName)
       .updateOne(query, { $set: item });
     return result != undefined;
   }
+
+  getProperties(_collection: string): Promise<Property[]> {
+    return Promise.resolve([]);
+  }
+
+
 }
