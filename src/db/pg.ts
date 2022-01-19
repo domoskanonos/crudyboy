@@ -49,9 +49,8 @@ export class PostgresqlClient extends DbClient {
                         whereQuery = whereQuery.concat("AND ");
                     }
                     whereQuery = whereQuery
-                        .concat("data::json->>'")
                         .concat(key)
-                        .concat("' LIKE '%")
+                        .concat(" LIKE '%")
                         .concat(String(mealName))
                         .concat("%'");
                 }
@@ -143,16 +142,17 @@ export class PostgresqlClient extends DbClient {
     }
 
     async getProperties(collection: string): Promise<Property[]> {
-        const sql = `SELECT column_name as name, column_default as defaultValue, udt_name as type
+        const sql = `SELECT column_name as name, udt_name as type
                      FROM INFORMATION_SCHEMA.COLUMNS
                      WHERE TABLE_NAME = '${collection}'`;
         const result = await this.getClient().query(sql);
         const retval: any[] = [];
         result.rows.forEach((row) => {
+            console.log(row.type)
             retval.push(<Property>{
                 name: row.name,
-                type: row.type == "varchar" ? "string" : row.type == "bool" ? "boolean" : row.type == "Date" ? "Date" : "number",
-                defaultValue: row.defaultValue
+                type: row.type == "varchar" ? "string" : row.type == "bool" ? "boolean" : row.type == "Date" ? "date" : "number",
+                defaultValue: row.type == "varchar" ? "Lorem Ipsum" : row.type == "bool" ? true : row.type == "date" ? new Date() : 0
             })
             ;
         });
