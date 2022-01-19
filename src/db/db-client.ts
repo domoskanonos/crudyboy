@@ -29,14 +29,11 @@ export abstract class DbClient {
 
     abstract insertOne(collection: string, value: any): Promise<any>;
 
+    abstract updateOne(collection: string, value: any): Promise<any>;
+
     abstract insertMany(collection: string, value: any[]): Promise<any>;
 
     abstract delete(collectionName: string, id: string): Promise<boolean>;
-
-    abstract update(
-        collectionName: string,
-        item: any
-    ): Promise<boolean>;
 
     abstract getProperties(collection: string): Promise<Property[]>;
 

@@ -85,8 +85,8 @@ export class CrudyboyServer {
                         ? await this.client.insertMany(collectionName, value)
                         : await this.client.insertOne(collectionName, value);
                 result
-                    ? res.status(201).send(`successfully.`)
-                    : res.status(500).send(`failed to create object(s): ${path}.`);
+                    ? res.status(201).send(result)
+                    : res.status(500).send(`failed to create item(s): ${path}.`);
             });
 
             this.app.put(path, async (req: Request, res: Response) => {
@@ -98,11 +98,11 @@ export class CrudyboyServer {
                     item
                 );
 
-                let result: any = await this.client.update(collectionName, item);
+                let result: any = await this.client.updateOne(collectionName, item);
 
                 result
-                    ? res.status(201).send(`successfully.`)
-                    : res.status(500).send(`failed to create object(s): ${path}.`);
+                    ? res.status(201).send(result)
+                    : res.status(500).send(`failed to update item: ${path}.`);
             });
 
             this.app.delete(
@@ -111,20 +111,8 @@ export class CrudyboyServer {
                     const id = req?.params?.id;
 
                     const result = await this.client.delete(collectionName, id);
-
-                    if (result) {
-                        res
-                            .status(202)
-                            .send(`successfully removed ${collectionName} with id ${id}`);
-                    } else if (!result) {
-                        res
-                            .status(400)
-                            .send(`failed to remove ${collectionName} with id ${id}`);
-                    } else if (!result) {
-                        res
-                            .status(404)
-                            .send(`${collectionName} with id ${id} does not exist`);
-                    }
+                    res.status(200)
+                        .send(result);
                 }
             );
         });
@@ -219,6 +207,7 @@ export class CrudyboyServer {
                                     type: "array",
                                     items: {
                                         type: "object",
+                                        properties: this.toOpenApiProperties(await this.client.getProperties(collectionName)),
                                     },
                                 },
                             },
@@ -280,12 +269,22 @@ export class CrudyboyServer {
 
             //put
             openApiDocPath[path]["put"] = {
-                description: `update ${collectionName} by id`,
+                description: `update ${collectionName} item`,
                 tags: [`${collectionName}`],
                 operationId: "updateById",
                 responses: {
                     200: {
-                        description: `a list of ${collectionName}`,
+                        description: `returned updated ${collectionName} item`,
+                        content: {
+                            "application/json": {
+                                schema: {
+                                    type: "object",
+                                },
+                            },
+                        },
+                    },
+                    500: {
+                        description: `${collectionName} item not updated`,
                         content: {
                             "application/text": {
                                 schema: {
@@ -296,7 +295,7 @@ export class CrudyboyServer {
                     },
                 },
                 requestBody: {
-                    description: `object of ${collectionName} as json`,
+                    description: `object of ${collectionName} item as json`,
                     content: {
                         "application/json": {
                             schema: {
@@ -316,12 +315,12 @@ export class CrudyboyServer {
                 description: `remove ${collectionName} by id`,
                 tags: [`${collectionName}`],
                 responses: {
-                    202: {
-                        description: `a list of ${collectionName}`,
+                    200: {
+                        description: `return true if ${collectionName} item successfully deleted, otherwise false.`,
                         content: {
                             "application/text": {
                                 schema: {
-                                    type: "string",
+                                    type: "boolean",
                                 },
                             },
                         },

@@ -86,13 +86,16 @@ export class PostgresqlClient extends DbClient {
         return retval;
     }
 
-    async insertOne(collection: string, item: any): Promise<void> {
-        let keys = Object.keys(item);
+    async insertOne(collection: string, item: any): Promise<any> {
+        let keys = Object.keys(item).filter((key: string) => {
+            return key != "id"
+        });
         let values: any[] = [];
         let fields: string = "";
         let valueParams: string = "";
         for (let i = 0; i < keys.length; i++) {
             const key: string = keys[i];
+
             if (fields.length > 0) {
                 fields = fields.concat(",");
             }
@@ -104,9 +107,49 @@ export class PostgresqlClient extends DbClient {
             values.push(item[key]);
         }
         let sql = `insert into ${collection} (${fields})
-                   values (${valueParams});`;
+                   values (${valueParams})
+                   RETURNING id;`;
         console.log(`insert statement: ${sql}`)
+
         const res: any = await this.getClient().query(sql, values);
+        console.log(res)
+        if (res.rowCount == 1) {
+            item.id = res.rows[0].id;
+            return item;
+        } else {
+            return null;
+        }
+    }
+
+    async updateOne(collection: string, item: any): Promise<any> {
+        let keys = Object.keys(item);
+        let values: any[] = [];
+        let updateFields: string = "";
+        let updateWhereParam: string = "";
+        for (let i = 0; i < keys.length; i++) {
+            const key: string = keys[i];
+            if (updateFields.length > 0) {
+                updateFields = updateFields.concat(",");
+            }
+            if (key != "id")
+                updateFields = updateFields.concat(key).concat("=$").concat(String(i + 1))
+            else {
+                updateWhereParam = "$".concat(String(i + 1))
+            }
+            values.push(item[key]);
+        }
+        let sql = `UPDATE ${collection}
+                   SET ${updateFields}
+                   WHERE id = ${updateWhereParam};`;
+
+        console.log(`update statement: ${sql}`)
+
+        const res: any = await this.getClient().query(sql, values);
+        if (res.rowCount == 1) {
+            return item;
+        } else {
+            return null;
+        }
     }
 
     async insertMany(collection: string, values: any[]) {
@@ -123,22 +166,7 @@ export class PostgresqlClient extends DbClient {
              WHERE id = $1;`,
             [id]
         );
-        console.log(result);
-        return true;
-    }
-
-    async update(
-        collectionName: string,
-        item: any
-    ): Promise<boolean> {
-        this.client?.query;
-        const result = await this.getClient().query(
-            `UPDATE ${collectionName}
-             SET data = $1::json
-             WHERE id = $2;`,
-            [item, item.id]
-        );
-        return true;
+        return result.rowCount == 1;
     }
 
     async getProperties(collection: string): Promise<Property[]> {
@@ -146,16 +174,16 @@ export class PostgresqlClient extends DbClient {
                      FROM INFORMATION_SCHEMA.COLUMNS
                      WHERE TABLE_NAME = '${collection}'`;
         const result = await this.getClient().query(sql);
-        const retval: any[] = [];
+        const properties: any[] = [];
         result.rows.forEach((row) => {
-            console.log(row.type)
-            retval.push(<Property>{
+            let property = <Property>{
                 name: row.name,
-                type: row.type == "varchar" ? "string" : row.type == "bool" ? "boolean" : row.type == "Date" ? "date" : "number",
-                defaultValue: row.type == "varchar" ? "Lorem Ipsum" : row.type == "bool" ? true : row.type == "date" ? new Date() : 0
-            })
-            ;
+                type: "varchar".indexOf(row.type) > -1 ? "string" : "bool".indexOf(row.type) > -1 ? "boolean" : "date".indexOf(row.type) > -1 ? "date timestamp" : "int4 integer".indexOf(row.type) > -1 ? "number" : null,
+                defaultValue: "varchar".indexOf(row.type) > -1 ? "Lorem Ipsum" : "bool".indexOf(row.type) > -1 ? true : "date".indexOf(row.type) > -1 ? new Date() : "int4 integer".indexOf(row.type) > -1 ? 0 : null,
+            };
+            properties.push(property);
         });
-        return Promise.resolve(retval);
+        return Promise.resolve(properties);
     }
+
 }
