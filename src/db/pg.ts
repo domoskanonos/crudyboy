@@ -3,6 +3,7 @@ import {DbClient, Property} from "./db-client";
 import {Request} from "express";
 
 export class PostgresqlClient extends DbClient {
+
     private client: Client | undefined;
 
     private getClient(): Client {
@@ -20,7 +21,9 @@ export class PostgresqlClient extends DbClient {
 
     protected initClient(): void {
         this.client = new Client(this.config);
-        this.connect();
+        this.connect().then(() => {
+            console.log("db connected.")
+        });
     }
 
     async collections(): Promise<string[]> {
@@ -28,11 +31,20 @@ export class PostgresqlClient extends DbClient {
                                                      FROM information_schema.tables
                                                      WHERE table_schema = 'public'
                                                      ORDER BY table_name;`);
-        const retval: string[] = [];
+        const tableNames: string[] = [];
         result.rows.forEach((row) => {
-            retval.push(row.table_name);
+            tableNames.push(row.table_name);
         });
-        return retval;
+        return tableNames;
+    }
+
+    async findById(collection: string, id: any): Promise<any> {
+        const sql = `SELECT *
+                     FROM ${collection}
+                     WHERE id = ${id}`;
+        console.log(`findById sql statement: ${sql}`)
+        let queryResult = await this.getClient().query(sql);
+        return queryResult.rows.length > 0 ? queryResult.rows[0] : null;
     }
 
     async search(collection: string, req: Request): Promise<any[]> {
@@ -78,12 +90,7 @@ export class PostgresqlClient extends DbClient {
         const sql = `SELECT *
                      FROM ${collection} ${whereQuery}${limitQuery}${offsetQuery}`;
         console.log(sql);
-        const result = await this.getClient().query(sql);
-        const retval: any[] = [];
-        result.rows.forEach((row) => {
-            retval.push(row);
-        });
-        return retval;
+        return (await this.getClient().query(sql)).rows;
     }
 
     async insertOne(collection: string, item: any): Promise<any> {
@@ -152,11 +159,26 @@ export class PostgresqlClient extends DbClient {
         }
     }
 
-    async insertMany(collection: string, values: any[]) {
-        for (let i = 0; i < values.length; i++) {
-            const value = values[i];
-            this.insertOne(collection, value);
+    async insertMany(collection: string, items: any[]): Promise<any[]> {
+        const insertedItems = [];
+        for (let i = 0; i < items.length; i++) {
+            const value = items[i];
+            let insertedItem = await this.insertOne(collection, value);
+            if (insertedItem)
+                insertedItems.push(insertedItem);
         }
+        return insertedItems;
+    }
+
+    async updateMany(collection: string, items: any[]): Promise<any[]> {
+        const updatedItems = [];
+        for (let i = 0; i < items.length; i++) {
+            const value = items[i];
+            let updatedItem = await this.updateOne(collection, value);
+            if (updatedItem)
+                updatedItems.push(updatedItem);
+        }
+        return updatedItems;
     }
 
     async delete(collectionName: string, id: string): Promise<boolean> {

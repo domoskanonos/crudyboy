@@ -68,8 +68,24 @@ export class CrudyboyServer {
                     collectionName
                 );
 
-                const retval: any[] = await this.client.search(collectionName, req);
-                res.status(200).send(retval);
+                const items: any[] = await this.client.search(collectionName, req);
+                res.status(200).send(items);
+            });
+
+            this.app.get(path.concat("/:id"), async (req: Request, res: Response) => {
+                const id = req?.params?.id;
+                console.log(
+                    "get item by id: %s, url: %s, collection: %s",
+                    id,
+                    req.url,
+                    collectionName
+                );
+
+                const item: any[] = await this.client.findById(collectionName, id);
+                if (item == null)
+                    res.status(204).send();
+                else
+                    res.status(200).send(item);
             });
 
             this.app.post(path, async (req: Request, res: Response) => {
@@ -90,15 +106,18 @@ export class CrudyboyServer {
             });
 
             this.app.put(path, async (req: Request, res: Response) => {
-                const item = req.body;
+                const value = req.body;
 
                 console.log(
                     "update item(s) for collection %s, json: %s",
                     path,
-                    item
+                    value
                 );
 
-                let result: any = await this.client.updateOne(collectionName, item);
+                let result: any =
+                    value instanceof Array
+                        ? await this.client.updateMany(collectionName, value)
+                        : await this.client.updateOne(collectionName, value);
 
                 result
                     ? res.status(201).send(result)
@@ -239,12 +258,22 @@ export class CrudyboyServer {
 
             //post
             openApiDocPath[path]["post"] = {
-                description: `one or more elements of type ${collectionName} can be saved with this endpoint. f.e. insert one object: {}, insert multiple: [{},{},{},...] .`,
+                description: `create one or more elements of type ${collectionName} can be saved with this endpoint. f.e. insert one object: {}, insert multiple: [{},{},{},...] .`,
                 tags: [`${collectionName}`],
                 operationId: "add",
                 responses: {
                     201: {
                         description: `a list of ${collectionName}`,
+                        content: {
+                            "application/json": {
+                                schema: {
+                                    type: "object",
+                                },
+                            },
+                        },
+                    },
+                    500: {
+                        description: `server problem creating ${collectionName} items`,
                         content: {
                             "application/text": {
                                 schema: {
@@ -269,7 +298,7 @@ export class CrudyboyServer {
 
             //put
             openApiDocPath[path]["put"] = {
-                description: `update ${collectionName} item`,
+                description: `update one or more elements of type ${collectionName} can be saved with this endpoint. f.e. insert one object: {}, insert multiple: [{},{},{},...] .`,
                 tags: [`${collectionName}`],
                 operationId: "updateById",
                 responses: {
@@ -284,7 +313,7 @@ export class CrudyboyServer {
                         },
                     },
                     500: {
-                        description: `${collectionName} item not updated`,
+                        description: `${collectionName} item(s) not updated`,
                         content: {
                             "application/text": {
                                 schema: {
@@ -309,6 +338,40 @@ export class CrudyboyServer {
 
             const pathWithId = path.concat("/{id}");
             openApiDocPath[pathWithId] = {};
+
+            //findById
+            openApiDocPath[pathWithId]["get"] = {
+                description: `get ${collectionName} item by id`,
+                tags: [`${collectionName}`],
+                responses: {
+                    200: {
+                        description: `${collectionName} item`,
+                        content: {
+                            "application/json": {
+                                schema: {
+                                    type: "object",
+                                    properties: this.toOpenApiProperties(await this.client.getProperties(collectionName)),
+                                },
+                            },
+                        },
+                    },
+                    204: {
+                        description: `${collectionName} item not found`,
+                    },
+                },
+                parameters: [
+                    {
+                        name: "id",
+                        in: "path",
+                        description: `${collectionName} item id`,
+                        schema: {
+                            default: 0,
+                            type: "string",
+                        },
+                    }
+                ],
+                operationId: "find${collectionName}",
+            };
 
             //delete
             openApiDocPath[pathWithId]["delete"] = {

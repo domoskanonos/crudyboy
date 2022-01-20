@@ -25,6 +25,8 @@ export abstract class DbClient {
 
     abstract collections(): Promise<string[]>;
 
+    abstract findById(collection: string, id: any): Promise<any>;
+
     abstract search(collection: string, request: Request): Promise<any[]>;
 
     abstract insertOne(collection: string, value: any): Promise<any>;
@@ -32,6 +34,8 @@ export abstract class DbClient {
     abstract updateOne(collection: string, value: any): Promise<any>;
 
     abstract insertMany(collection: string, value: any[]): Promise<any>;
+
+    abstract updateMany(collection: string, value: any[]): Promise<any>;
 
     abstract delete(collectionName: string, id: string): Promise<boolean>;
 
