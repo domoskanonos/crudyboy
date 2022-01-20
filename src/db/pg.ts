@@ -81,15 +81,31 @@ export class PostgresqlClient extends DbClient {
         ? parseInt(req.query.page)
         : null;
 
-        //TODO: sort
-
     let offsetQuery: string = "";
     if (limit != null && page != null) {
       offsetQuery = " OFFSET ".concat(String(Number(page) * Number(limit)));
     }
 
-    const sql = `SELECT *
-                     FROM ${collection} ${whereQuery}${limitQuery}${offsetQuery}`;
+    let sort: string[] | null =
+      req.query.sort && typeof req.query.sort == "string"
+        ? req.query.sort.split(";")
+        : null;
+    let sortByQuery: string = "";
+    if (sort != null) {
+      sort.forEach((sortBy: string) => {
+        if (sortByQuery.length > 0) {
+          sortByQuery = sortByQuery.concat(", ");
+        } else {
+          sortByQuery = " ORDER BY ";
+        }
+        const sortBySplitted = sortBy.split(":");
+        sortByQuery = sortByQuery
+          .concat(sortBySplitted[0])
+          .concat(" ")
+          .concat(sortBySplitted[1]);
+      });
+    }
+    const sql = `SELECT * FROM ${collection} ${whereQuery}${sortByQuery}${limitQuery}${offsetQuery}`;
     console.log(sql);
     return (await this.getClient().query(sql)).rows;
   }
