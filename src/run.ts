@@ -1,6 +1,6 @@
 import * as dotenv from "dotenv";
 import {CrudyboyServer} from "./server";
-import {PostgresqlClient} from "./db/pg";
+import {PostgresqlClient} from "./db/postgresql";
 import {DbClient, DBClientConfig} from "./db/db-client";
 
 dotenv.config();
