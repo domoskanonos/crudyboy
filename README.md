@@ -1,8 +1,6 @@
 # crudyboy
 
-with crudyboy you can quickly and easily generate a crud rest service from a MongoDB. Crudyboy is a ready to run rest
-crud service, you only need a connection to a MongoDB. Crudyboy automaticalliy read out all collections from a given
-database and provides corresponding crud operations via rest.
+with crudyboy you can quickly and easily generate a crud rest service from a postgresql database . crudyboy is a ready to run rest crud service, you only need a connection to a postgresql . crudyboy automaticalliy read out all tables and fields from a given database and provides corresponding crud operations via rest.
 
 ### project info
 
