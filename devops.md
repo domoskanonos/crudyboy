@@ -5,9 +5,9 @@
 ### step 2: publish to npm
     npm publish --access public
 ### step 3: build new docker image version
-    docker build --no-cache -t domoskanonos/crudyboy:1.0.6 .
+    docker build --no-cache -t domoskanonos/crudyboy:1.0.7 .
 ### step 4: publish to dockerhub
-    docker push domoskanonos/crudyboy:1.0.6
+    docker push domoskanonos/crudyboy:1.0.7
 
 # other docker commandsdock
     docker container prune
