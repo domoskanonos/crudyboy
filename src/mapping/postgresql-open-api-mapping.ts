@@ -7,6 +7,7 @@ export class PostgresqlOpenApiMapping {
     pgProperties.forEach((property: PostgresqlProperty) => {
       let udtName = property.udt_name;
       let isVarchar = "varchar".indexOf(udtName) > -1;
+      let isText = "text".indexOf(udtName) > -1;
       let isBool = "bool".indexOf(udtName) > -1;
       let isDate = "date".indexOf(udtName) > -1;
       let isTimestamp = "timestamp".indexOf(udtName) > -1;
@@ -33,15 +34,16 @@ export class PostgresqlOpenApiMapping {
           : null,
         writeOnly: property.is_updatable != "YES",
         nullable: property.is_nullable == "YES",
-        default: isVarchar
-          ? "Lorem Ipsum"
-          : isBool
-          ? true
-          : isDate
-          ? new Date()
-          : isInt4
-          ? 0
-          : null,
+        default:
+          isVarchar || isText
+            ? "Lorem Ipsum"
+            : isBool
+            ? true
+            : isDate
+            ? new Date()
+            : isInt4
+            ? 0
+            : null,
       };
 
       if (property.character_maximum_length)
