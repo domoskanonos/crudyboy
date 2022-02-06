@@ -12,6 +12,7 @@ export class PostgresqlOpenApiMapping {
       let isDate = "date".indexOf(udtName) > -1;
       let isTimestamp = "timestamp".indexOf(udtName) > -1;
       let isInt4 = "int4".indexOf(udtName) > -1;
+      let isNumeric = "numeric".indexOf(udtName) > -1;
       openApiProperties[property.column_name] = <OpenApiProperty>{
         title: property.column_name,
         type: isVarchar
@@ -22,6 +23,8 @@ export class PostgresqlOpenApiMapping {
           ? "string"
           : isInt4
           ? "integer"
+          : isNumeric
+          ? "number"
           : null,
         format: isVarchar
           ? ""
@@ -41,7 +44,7 @@ export class PostgresqlOpenApiMapping {
             ? true
             : isDate
             ? new Date()
-            : isInt4
+            : isInt4 || isNumeric
             ? 0
             : null,
       };
