@@ -156,7 +156,9 @@ export class PostgresqlClient extends DbClient {
     const sql = `SELECT *
                      FROM ${collection} ${whereQuery}${sortByQuery}${limitQuery}${offsetQuery}`;
     console.log(sql);
-    return (await this.getClient().query(sql)).rows;
+    const rows = (await this.getClient().query(sql)).rows;
+    console.log(rows);
+    return rows;
   }
 
   async insertOne(collection: string, item: any): Promise<any> {

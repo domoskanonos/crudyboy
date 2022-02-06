@@ -15,17 +15,18 @@ export class PostgresqlOpenApiMapping {
       let isNumeric = "numeric".indexOf(udtName) > -1;
       openApiProperties[property.column_name] = <OpenApiProperty>{
         title: property.column_name,
-        type: isVarchar
-          ? "string"
-          : isBool
-          ? "boolean"
-          : isDate || isTimestamp
-          ? "string"
-          : isInt4
-          ? "integer"
-          : isNumeric
-          ? "number"
-          : null,
+        type:
+          isVarchar || isText
+            ? "string"
+            : isBool
+            ? "boolean"
+            : isDate || isTimestamp
+            ? "string"
+            : isInt4
+            ? "integer"
+            : isNumeric
+            ? "number"
+            : null,
         format: isVarchar
           ? ""
           : isBool
@@ -34,7 +35,9 @@ export class PostgresqlOpenApiMapping {
           ? "date"
           : isInt4
           ? "int32"
-          : null,
+          : isNumeric
+          ? "double"
+          : "",
         writeOnly: property.is_updatable != "YES",
         nullable: property.is_nullable == "YES",
         default:
